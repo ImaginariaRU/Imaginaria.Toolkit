@@ -13,7 +13,6 @@ install: 	##@system Install package. Don't run it manually!!!
 	@echo Installing...
 	install -d $(PATH_PROJECT)
 	cp -r public/* $(PATH_PROJECT)
-	cp README.md $(PATH_PROJECT)
 
 	@# Get version info
 	$(eval COMMIT_HASH := $(shell git rev-parse --short HEAD))
