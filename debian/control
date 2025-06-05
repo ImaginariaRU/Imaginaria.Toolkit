@@ -1,0 +1,12 @@
+Source: imaginaria-toolkit
+Section: unknown
+Priority: optional
+Maintainer: Karel Wintersky <karel@wintersky.ru>
+Uploaders: Karel Wintersky <karel@wintersky.ru>
+Build-Depends: debhelper (>= 10)
+Standards-Version: 3.9.8
+
+Package: imaginaria-toolkit
+Architecture: all
+Depends: nano, pv, nginx-full
+Description: Imaginaria Toolkit

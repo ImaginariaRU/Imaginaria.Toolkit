@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -e
+ANSI_RED='\033[0;31m'
+ANSI_GREEN='\033[0;32m'
+ANSI_YELLOW='\033[1;33m'
+ANSI_RESET='\033[0m'
+
+PACKAGE_NAME=imaginaria-toolkit
+INSTALL_DIR=imaginaria.toolkit
+
+PATH_PROJECT=/var/www.rpg/${INSTALL_DIR}
+
+PHP_VERSIONS=$(ps -e -o stat,command | grep -E '^Ss\s+php-fpm' | grep -E '[0-9]+\.[0-9]+' -o)
+
+case "$1" in
+    configure)
+        echo "\n ${ANSI_YELLOW} Running '${PACKAGE_NAME}' post-install scripts... ${ANSI_RESET} \n"
+
+        echo "Fixing access rights..."
+        chown -R www-data:www-data ${PATH_PROJECT}/*
+        echo "${ANSI_GREEN} Ok. ${ANSI_RESET}"
+
+        echo
+        echo "Restarting all running php-fpm processes..."
+        for version in $PHP_VERSIONS; do echo "Restarting ${ANSI_YELLOW}php${version}-fpm${ANSI_RESET} process..."; systemctl restart php${version}-fpm; done
+        echo "${ANSI_GREEN}Finished.${ANSI_RESET}"
+
+        echo
+        echo "${ANSI_YELLOW} ... post-install finished. ${ANSI_RESET}"
+        echo
+
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
