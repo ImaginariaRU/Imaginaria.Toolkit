@@ -1,3 +1,10 @@
+imaginaria-toolkit (1.1.0) stable; urgency=medium
+
+  * добавлен namegen
+  * добавлен калькулятор заклинаний
+
+ -- Karel Wintersky <karel@wintersky.ru>  Sun, 23 Nov 2025 00:07:25 +0300
+
 imaginaria-toolkit (1.0.1) stable; urgency=medium
 
   * Stable version + fix

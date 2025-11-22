@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор мощности заклинаний</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #8a2be2;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .app-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: stretch;
+        }
+        
+        .spell-input, .spell-result {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+        
+        .magic-button-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .magic-button {
+            background: linear-gradient(135deg, #ff6b6b, #8a2be2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 180px;
+        }
+        
+        .magic-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.6);
+        }
+        
+        .magic-button:disabled {
+            background: #ccc;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .wand-icon {
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            flex: 1;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .spell-formatted {
+            flex: 1;
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            min-height: 300px;
+            border: 2px solid var(--border-color);
+        }
+        
+        .word {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        sup.info {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        sup.error {
+            color: var(--error-color);
+            font-weight: bold;
+        }
+        
+        .hint {
+            color: var(--error-color);
+            font-style: italic;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .hints-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 25px;
+        }
+        
+        .hint-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .hint-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        
+        .hint-content {
+            padding-left: 10px;
+        }
+        
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Мобильная версия */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .magic-button-container {
+                order: 3;
+                margin-top: 20px;
+            }
+            
+            .magic-button {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .spell-input, .spell-result {
+                min-height: 350px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .spell-input, .spell-result, .stats-section, .hints-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Калькулятор мощности заклинаний</h1>
+            <p class="app-description">Введите заклинание для расчета его энергоемкости и мощности</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="spell-input">
+                <h2 class="section-title">Ввод заклинания</h2>
+                <textarea id="spell_input" placeholder="Введите заклинание здесь..."></textarea>
+                <div class="hint" id="input_hint"></div>
+            </section>
+            
+            <div class="magic-button-container">
+                <button id="spell_verify" class="magic-button" disabled>
+                    <div class="wand-icon">✨</div>
+                    <div>вжух и магия</div>
+                </button>
+            </div>
+            
+            <section class="spell-result">
+                <h2 class="section-title">Результат</h2>
+                <div id="spell_formatted" class="spell-formatted"></div>
+            </section>
+        </div>
+        
+        <section class="stats-section">
+            <h2 class="section-title">Статистика заклинания</h2>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Длина заклинания</div>
+                    <div class="stat-value" id="spell_length">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Энергоемкость</div>
+                    <div class="stat-value" id="spell_total_power">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Средняя мощность</div>
+                    <div class="stat-value" id="spell_average_power">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Неизвестные слова</div>
+                    <div class="stat-value" id="spell_unknown_words_count">0</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="hints-section">
+            <h2 class="section-title">Справка по вводу</h2>
+            
+            <div class="hint-item">
+                <div class="hint-title">Общее правило</div>
+                <div class="hint-content">
+                    По умолчанию элементы считаются словами. Уточнить тип элемента можно:
+                </div>
+            </div>
+            
+            <div class="hint-item">
+                <div class="hint-title">1. Добавлением типа через слэш</div>
+                <div class="hint-content">
+                    <code>мысль/слово</code>, <code>мысль/напр</code>
+                </div>
+            </div>
+            
+            <div class="hint-item">
+                <div class="hint-title">2. Префиксом в начале:</div>
+                <div class="hint-content">
+                    <ul>
+                        <li><b>"!"</b> - слово</li>
+                        <li><b>"+"</b> - образующая</li>
+                        <li><b>"?"</b> - направляющая</li>
+                        <li><b>"*"</b> - стихия</li>
+                        <li><b>"%"</b> - цель</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="hint-item">
+                <div class="hint-title">Дополнительно</div>
+                <div class="hint-content">
+                    Стихии на английском можно указывать без префикса.
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // База данных слов заклинаний
+        const kaladon_spellwords = {
+            words: {
+                'я': 1, 'я/слово': 1, '!я': 1,
+                'поток': 2,
+                'толчок': 2,
+                'мысль/слово': 3, 'мысль': 3, '!мысль': 3,
+                'шар': 3,
+                'движение': 4,
+                'слово': 4,
+                'сон': 5,
+                'корень': 5,
+                'ухо': 5,
+                'конус': 5,
+                'силой': 5, 'сила': 5,
+                'тело': 5,
+                'жизнь': 6,
+                'имеющий-дар': 6, 'имеющийдар': 6, 'имеющий_дар': 6, 'ИД': 6,
+                'кли-поле': 6,
+                'кора': 6,
+                'магия': 7,
+                'глаз': 7,
+                'вихрь': 7,
+                'фокус': 7,
+                'знак': 8,
+                'место': 8,
+                'рука': 8,
+                'крест': 9,
+                'взгляд': 9,
+                'образ': 10,
+                'спираль': 11,
+                'храм': 11,
+                'клинок': 12,
+                'слой': 13,
+                'смерть': 13, 'смерть/слово': 13, '!смерть': 13,
+                'сердце': 14,
+                'сосредоточение': 14,
+                'горнило': 17,
+                'баланс': 18
+            },
+            forms: {
+                'создать': 1,
+                'в': 1,
+                'стрела': 2,
+                'разрушить': 3,
+                'внутри': 4,
+                'горн': 5,
+                'рост': 5,
+                'течение': 6,
+                'изъять': 6,
+                'посолонь': 6, 'вверх': 6,
+                'противосолонь': 6, 'вниз': 6,
+                'вложить': 6,
+                'там': 6,
+                'или': 7,
+                'пирамида': 7,
+                'молния': 7,
+                'переместить': 7,
+                'разность': 8,
+                'волна': 8,
+                'на': 8, 'over': 8,
+                'если': 8, 'то': 0,
+                'столп': 8,
+                'таккак': 9, 'так-как': 9, 'так_как': 9, 'так,как': 9,
+                'когда': 9, 'тогда': 0,
+                'цепь': 11,
+                'вокруг': 11,
+                'взрыв': 11,
+                'сжать': 13,
+                'числительное': 1
+            },
+            dirs: {
+                'эмоции/чувства': 1, 'э/ч': 1,
+                'направить': 1,
+                'закрыть': 2,
+                'вскрыть': 2,
+                'закрутить': 2,
+                'от': 3, 'от-сих-до-сих': 3, 'от-до': 3,
+                'тамгде': 3, 'там-где': 3, 'там,где': 3,
+                'мысль/напр': 4, '?мысль': 4,
+                'через': 4, 'сквозь': 4,
+                'вдоль': 4,
+                'скрепить': 5, '*скрепить': 5,
+                'за': 6,
+                'дотехпор': 6, 'дотехпорпока': 6, 'дотехпор,пока': 6,
+                'пока': 6, 'пока-условие': 6,
+                'разделить': 6,
+                'вовсестороны': 7, 'во-все-стороны': 7,
+                'к': 7,
+                'везде': 8,
+                'назад': 10,
+                'туда': 12,
+                'сложить': 13,
+                'вездетамгдеесть': 14,
+                'магнит': 15
+            },
+            targets: {
+                '%я': 1,
+                'заклинание': 1, '%заклинание': 1,
+                'животное': 2,
+                'камень': 2,
+                'существо': 3,
+                'гуманоид': 3,
+                'HILF': 4, 'hilf': 4,
+                'тангар': 5, 'дварф': 5,
+                'элементал': 5, 'стихийный-дух': 5, 'элементаль': 5,
+                'человек': 5,
+                'растение': 5,
+                'бес': 5,
+                'эльф': 5,
+                'духпредков': 7, 'дух-предков': 7,
+                'тролль': 7,
+                'меч': 7,
+                'андед': 8, 'undead': 8,
+                'дерево': 8,
+                'неподвижнаявода': 8, 'неподвижная_вода': 8, 'неподвижная-вода': 8, 'стоячаявода': 8,
+                'носитель': 8,
+                'демон': 9,
+                'ты': 9,
+                'тень': 13,
+                'ангел': 14,
+                'небесныйкамень': 16, 'небесный-камень': 16, 'небесный_камень': 16,
+                'it': 1
+            },
+            powers: {
+                'свет': 1,
+                'благость': 9, 'свят': 11, 'holy': 11, 'HOLY': 11, 'ангелус': 13, 'ANGELUS': 13, 'angelus': 13,
+                'stasis': 18, 'стазис': 18,
+                'порядок': 12,
+                'точка': 9,
+                '*мысль': 3, 'ментал': 7, 'подсознание': 13,
+                'мрак': 3,
+                'инферно': 8, 'ад': 11, 'diabolus': 14,
+                'время': 18,
+                'хаос': 12,
+                'пространство': 9,
+                'дуновение': 2, 'астрал': 7, 'глубина': 13,
+                'искра': 2, 'огонь': 4, 'пламя': 6, 'всполох': 8,
+                'пыль': 2, 'земля': 4, '*камень': 6, 'скала': 8,
+                'ручей': 3, 'вода': 5, 'река': 7, 'море': 9,
+                'ветер': 4, 'воздух': 6, 'буря': 8, 'ураган': 10,
+                'росток': 5, '*дерево': 7, 'лес': 9, 'флора': 11, 'TREE': 7, 'tree': 7,
+                'руда': 2, 'металл': 4, 'сплав': 6, 'дух_металла': 8, 'духметалла': 8, 'дух-металла': 8,
+                'снежинка': 2, 'холод': 4, 'лёд': 6, 'стужа': 8, 'лед': 6,
+                'planetary': 9, 'gravity': 11, 'subgravity': 15, 'blackhole': 18,
+                'планетари': 9, 'гравитация': 11, 'субгравитация': 13, 'чернаядыра': 15, 'черная-дыра': 15, 'черная_дыра': 15,
+                'sky': 5, 'stratos': 7, 'aerus': 9, 'aefilus': 11,
+                'небо': 5, 'страто': 7, 'аэрус': 9, 'аэфилус': 11,
+                '*жизнь': 14, '*ЖИЗНЬ': 14, 'LIFE': 14, 'life': 14,
+                '*смерть': 16, '*СМЕРТЬ': 16, 'DEATH': 16, 'death': 16,
+                '*магия': 1, 'MAGIC': 1, 'magic': 1, '*МАГИЯ': 1,
+                '*заклинания': 1, '*ЗАКЛИНАНИЯ': 1, 'SPELL': 1, 'spell': 1, 'SPELLS': 1, 'spells': 1,
+                'shadow': 14,
+                'grayhaze': 18,
+                'prime': 18,
+                'starlight': 17,
+                'force': 15
+            }
+        };
+
+        // Функция для получения стоимости слова
+        function getCost(word) {
+            for (const category in kaladon_spellwords) {
+                if (kaladon_spellwords[category].hasOwnProperty(word)) {
+                    return kaladon_spellwords[category][word];
+                }
+            }
+            return "?";
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const spellInput = document.getElementById('spell_input');
+            const spellVerify = document.getElementById('spell_verify');
+            const inputHint = document.getElementById('input_hint');
+            const spellFormatted = document.getElementById('spell_formatted');
+            
+            // Установка начального значения
+            spellInput.value = '';
+            spellVerify.disabled = true;
+            
+            // Фокус на поле ввода
+            spellInput.addEventListener('focus', function() {
+                inputHint.textContent = '';
+            });
+            
+            // Потеря фокуса
+            spellInput.addEventListener('blur', function() {
+                if (spellInput.value.trim() === '') {
+                    inputHint.textContent = 'Необходимо ввести заклинание';
+                }
+            });
+            
+            // Обработка кнопки вычисления
+            spellVerify.addEventListener('click', function() {
+                const sourceSpell = spellInput.value;
+                let knownWordsCount = 0;
+                let unknownWordsCount = 0;
+                let spellpower = 0;
+                
+                // Регулярное выражение для поиска слов
+                const wordRegex = /([a-zа-яё*]+)/gi;
+                
+                // Форматирование заклинания с подсветкой
+                const formattedSpell = sourceSpell.replace(wordRegex, function(match) {
+                    const word = match.toLowerCase();
+                    const cost = getCost(word);
+                    
+                    if (cost === "?") {
+                        unknownWordsCount++;
+                        return `<span class="word">${match}<sup class="error">${cost}</sup></span>`;
+                    } else {
+                        knownWordsCount++;
+                        spellpower += parseInt(cost);
+                        return `<span class="word">${match}<sup class="info">${cost}</sup></span>`;
+                    }
+                });
+                
+                // Обновление информации о заклинании
+                document.getElementById('spell_length').textContent = knownWordsCount;
+                document.getElementById('spell_unknown_words_count').textContent = unknownWordsCount;
+                
+                if (knownWordsCount > 0) {
+                    document.getElementById('spell_average_power').textContent = 
+                        (spellpower / knownWordsCount).toFixed(1);
+                } else {
+                    document.getElementById('spell_average_power').textContent = '0';
+                }
+                
+                document.getElementById('spell_total_power').textContent = spellpower;
+                spellFormatted.innerHTML = formattedSpell;
+            });
+            
+            // Обработка ввода в текстовое поле (для включения/отключения кнопки)
+            spellInput.addEventListener('input', function() {
+                if (spellInput.value.trim() === '') {
+                    spellVerify.disabled = true;
+                    inputHint.textContent = 'Необходимо ввести заклинание';
+                } else {
+                    spellVerify.disabled = false;
+                    inputHint.textContent = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
